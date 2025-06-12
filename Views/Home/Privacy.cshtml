@@ -1,0 +1,506 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+@section Styles {
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 2.5em;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .sudoku-grid {
+            background: #fff;
+            border: 4px solid #333;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, 35px);
+            grid-template-rows: repeat(16, 35px);
+            gap: 1px;
+            background: #333;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #666;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cell:hover {
+            background: #e3f2fd;
+        }
+
+        .cell.selected {
+            background: #2196f3 !important;
+            color: white;
+        }
+
+        .cell.given {
+            background: #f5f5f5;
+            color: #1976d2;
+            font-weight: bold;
+            cursor: default;
+        }
+
+        .cell.error {
+            background: #ffebee !important;
+            color: #d32f2f;
+        }
+
+        .cell.highlighted {
+            background: #fff3e0;
+        }
+
+        /* 4x4 block borders */
+        .cell:nth-child(4n) {
+            border-right: 3px solid #333;
+        }
+
+        .cell:nth-child(n+49):nth-child(-n+64),
+        .cell:nth-child(n+113):nth-child(-n+128),
+        .cell:nth-child(n+177):nth-child(-n+192) {
+            border-bottom: 3px solid #333;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 250px;
+        }
+
+        .hex-input {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .hex-button {
+            padding: 12px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .hex-button:hover {
+            background: #45a049;
+        }
+
+        .action-button {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .action-button:hover {
+            background: #f57c00;
+        }
+
+        .difficulty {
+            margin: 20px 0;
+        }
+
+        .difficulty select {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .completed {
+            background: #4caf50 !important;
+            color: white !important;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @@media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(16, 25px);
+                grid-template-rows: repeat(16, 25px);
+            }
+            
+            .cell {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+        }
+    </style>
+}
+
+<div class="container">
+    <h1>🔢 Hexadecimal Sudoku 16×16 🔢</h1>
+    
+    <div class="game-container">
+        <div class="sudoku-grid">
+            <div class="grid" id="grid"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="status">
+                <div class="timer" id="timer">00:00</div>
+                <div id="statusText">Select a cell and enter hex digit</div>
+            </div>
+            
+            <div class="difficulty">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (120 given)</option>
+                    <option value="medium">Medium (100 given)</option>
+                    <option value="hard">Hard (80 given)</option>
+                    <option value="expert">Expert (60 given)</option>
+                </select>
+            </div>
+            
+            <div class="hex-input">
+                @for (int i = 0; i <= 9; i++)
+                {
+                    <button class="hex-button" onclick="inputValue('@i')">@i</button>
+                }
+                @foreach (char c in new char[] {'A', 'B', 'C', 'D', 'E', 'F'})
+                {
+                    <button class="hex-button" onclick="inputValue('@c')">@c</button>
+                }
+            </div>
+            
+            <div>
+                <button class="action-button" onclick="clearCell()">Clear Cell</button>
+                <button class="action-button" onclick="newGame()">New Game</button>
+                <button class="action-button" onclick="checkSolution()">Check</button>
+                <button class="action-button" onclick="showHint()">Hint</button>
+                <button class="action-button" onclick="savePuzzle()">Save</button>
+                <button class="action-button" onclick="loadPuzzle()">Load</button>
+            </div>
+            
+            <div class="instructions">
+                <strong>How to Play:</strong><br>
+                • Fill each row, column, and 4×4 box with digits 0-9 and A-F<br>
+                • Each hex digit (0-F) must appear exactly once in each row, column, and 4×4 box<br>
+                • Click a cell and use buttons or keyboard to input values<br>
+                • Blue cells are given clues, white cells are for you to fill<br>
+                • Progress is automatically saved to localStorage
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Game variables
+        let grid = [];
+        let solution = [];
+        let givenCells = [];
+        let selectedCell = null;
+        let gameStartTime = Date.now();
+        let timerInterval = null;
+        let gameCompleted = false;
+
+        const HEX_DIGITS = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+
+        // Initialize the game on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+
+        function init() {
+            createGrid();
+            loadPuzzleFromStorage() || newGame();
+            startTimer();
+            setupKeyboardEvents();
+        }
+
+        function createGrid() {
+            const gridElement = document.getElementById('grid');
+            gridElement.innerHTML = '';
+            
+            for (let i = 0; i < 256; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => selectCell(i));
+                gridElement.appendChild(cell);
+            }
+            
+            grid = Array(16).fill().map(() => Array(16).fill(''));
+        }
+
+        function setupKeyboardEvents() {
+            document.addEventListener('keydown', function(event) {
+                if (gameCompleted || !selectedCell) return;
+                
+                const key = event.key.toUpperCase();
+                
+                if (HEX_DIGITS.includes(key)) {
+                    inputValue(key);
+                } else if (event.key === 'Delete' || event.key === 'Backspace') {
+                    clearCell();
+                } else if (event.key === 'Escape') {
+                    deselectCell();
+                }
+                
+                // Arrow key navigation
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                    navigateWithArrows(event.key);
+                    event.preventDefault();
+                }
+            });
+        }
+
+        function navigateWithArrows(direction) {
+            if (!selectedCell) return;
+            
+            let { row, col } = selectedCell;
+            
+            switch (direction) {
+                case 'ArrowUp':
+                    row = Math.max(0, row - 1);
+                    break;
+                case 'ArrowDown':
+                    row = Math.min(15, row + 1);
+                    break;
+                case 'ArrowLeft':
+                    col = Math.max(0, col - 1);
+                    break;
+                case 'ArrowRight':
+                    col = Math.min(15, col + 1);
+                    break;
+            }
+            
+            selectCell(row * 16 + col);
+        }
+
+        function selectCell(index) {
+            if (gameCompleted) return;
+            
+            const row = Math.floor(index / 16);
+            const col = index % 16;
+            
+            // Remove previous selection
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('selected', 'highlighted');
+            });
+            
+            selectedCell = { row, col, index };
+            
+            // Highlight selected cell
+            document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+            
+            // Highlight same row, column, and 4x4 box
+            highlightRelated(row, col);
+            
+            updateStatus(`Selected cell (${row + 1}, ${col + 1})`);
+        }
+
+        function deselectCell() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('selected', 'highlighted');
+            });
+            selectedCell = null;
+            updateStatus('Select a cell and enter hex digit');
+        }
+
+        function highlightRelated(row, col) {
+            // Highlight same row
+            for (let c = 0; c < 16; c++) {
+                const index = row * 16 + c;
+                document.querySelector(`[data-index="${index}"]`).classList.add('highlighted');
+            }
+            
+            // Highlight same column
+            for (let r = 0; r < 16; r++) {
+                const index = r * 16 + col;
+                document.querySelector(`[data-index="${index}"]`).classList.add('highlighted');
+            }
+            
+            // Highlight same 4x4 box
+            const boxRow = Math.floor(row / 4) * 4;
+            const boxCol = Math.floor(col / 4) * 4;
+            
+            for (let r = boxRow; r < boxRow + 4; r++) {
+                for (let c = boxCol; c < boxCol + 4; c++) {
+                    const index = r * 16 + c;
+                    document.querySelector(`[data-index="${index}"]`).classList.add('highlighted');
+                }
+            }
+        }
+
+        function inputValue(value) {
+            if (!selectedCell || gameCompleted) return;
+            
+            const { row, col, index } = selectedCell;
+            
+            if (givenCells[row][col]) return;
+            
+            grid[row][col] = value;
+            document.querySelector(`[data-index="${index}"]`).textContent = value;
+            
+            // Check if this creates any conflicts
+            validateCell(row, col);
+            
+            // Save progress
+            savePuzzleToStorage();
+            
+            // Check if game is completed
+            if (isGridComplete()) {
+                gameCompleted = true;
+                clearInterval(timerInterval);
+                updateStatus('🎉 Congratulations! Puzzle solved! 🎉');
+                highlightCompletion();
+                
+                // Save completion to server if needed
+                saveCompletionToServer();
+            }
+        }
+
+        function clearCell() {
+            if (!selectedCell || gameCompleted) return;
+            
+            const { row, col, index } = selectedCell;
+            
+            if (givenCells[row][col]) return;
+            
+            grid[row][col] = '';
+            document.querySelector(`[data-index="${index}"]`).textContent = '';
+            document.querySelector(`[data-index="${index}"]`).classList.remove('error');
+            
+            savePuzzleToStorage();
+        }
+
+        function validateCell(row, col) {
+            const cellElement = document.querySelector(`[data-index="${row * 16 + col}"]`);
+            const value = grid[row][col];
+            
+            if (!value) {
+                cellElement.classList.remove('error');
+                return true;
+            }
+            
+            let isValid = true;
+            
+            // Check row
+            for (let c = 0; c < 16; c++) {
+                if (c !== col && grid[row][c] === value) {
+                    isValid = false;
+                    break;
+                }
+            }
+            
+            // Check column
+            if (isValid) {
+                for (let r = 0; r < 16; r++) {
+                    if (r !== row && grid[r][col] === value) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Check 4x4 box
+            if (isValid) {
+                const boxRow = Math.floor(row / 4) * 4;
+                const boxCol = Math.floor(col / 4) * 4;
+                
+                for (let r = boxRow; r < boxRow + 4; r++) {
+                    for (let c = boxCol; c < boxCol + 4; c++) {
+                        if ((r !== row || c !== col) && grid[r][c] === value) {
+                            isValid = false;
+                            break;
+                        }
+                    }
+                    if (!isValid) break;
+                }
+            }
+            
+            if (isValid) {
+                cellElement.classList.remove('error');
+            } 
+            else { }
+        }
+    
+}
