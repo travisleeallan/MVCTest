@@ -1,4 +1,120 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+﻿
+@{
+    ViewData["Title"] = "Slice of Heaven - Home";
+    var hottestPizzas = new[]
+    {
+        new { Name = "The Fiery Volcano", Description = "Spicy pepperoni with jalapeños and hot chili flakes.", Price = "$14.99", Url = "/Products/FieryVolcano" },
+        new { Name = "Classic Margherita", Description = "Fresh mozzarella, basil, and homemade tomato sauce.", Price = "$12.99", Url = "/Products/Margherita" },
+        new { Name = "BBQ Chicken Blast", Description = "Grilled chicken, BBQ sauce, red onions, and cheddar.", Price = "$15.99", Url = "/Products/BBQChickenBlast" },
+        new { Name = "Veggie Delight", Description = "Bell peppers, mushrooms, olives, tomatoes, and spinach.", Price = "$13.99", Url = "/Products/VeggieDelight" }
+    };
 }
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: url('/images/pizza-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .hero {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 120px 30px 80px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .product-card {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        footer {
+            background-color: #222;
+            color: #aaa;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="/">Slice of Heaven</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navMenu">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Menu">Menu</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/About">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/Contact">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Slice of Heaven</h1>
+            <p>Where Every Slice is a Moment of Bliss 🍕</p>
+            <a href="/Menu" class="btn btn-danger btn-lg shadow">Explore Our Menu</a>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-white mb-4 text-center fw-bold">🔥 Our Hottest Pizzas 🔥</h2>
+            <div class="row g-4 justify-content-center">
+                @foreach(var pizza in hottestPizzas)
+                {
+                    <div class="col-md-6 col-lg-3">
+                        <div class="product-card p-4 h-100 d-flex flex-column justify-content-between">
+                            <h4 class="fw-bold">@pizza.Name</h4>
+                            <p class="flex-grow-1">@pizza.Description</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="fw-semibold fs-5 text-danger">@pizza.Price</span>
+                                <a href="@pizza.Url" class="btn btn-outline-danger btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <small>© 2024 Slice of Heaven. All rights reserved. Made with ❤️ by Pizza Lovers.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
