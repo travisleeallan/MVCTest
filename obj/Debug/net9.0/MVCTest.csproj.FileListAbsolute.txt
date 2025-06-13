@@ -87,3 +87,4 @@
 /Users/travisallan/Projects/Learning/MVCTest/obj/Debug/net9.0/MVCTest.pdb
 /Users/travisallan/Projects/Learning/MVCTest/obj/Debug/net9.0/MVCTest.genruntimeconfig.cache
 /Users/travisallan/Projects/Learning/MVCTest/obj/Debug/net9.0/ref/MVCTest.dll
+/Users/travisallan/Projects/Learning/MVCTest/obj/Debug/net9.0/MVCTest.sourcelink.json
