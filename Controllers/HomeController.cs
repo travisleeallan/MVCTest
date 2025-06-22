@@ -23,7 +23,11 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult SliceofHeaven()
+    {
+        return View();
+    }
+    public IActionResult SideScroller()
     {
         return View();
     }
